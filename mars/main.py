@@ -1,7 +1,7 @@
 import datetime
 
 from flask import Flask, render_template, redirect
-from flask_login import LoginManager, login_user, login_required, logout_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from forms.user import RegisterForm, LoginForm
 from faker import Faker
 from forms.job import JobForm
@@ -66,6 +66,20 @@ def logout():
 @login_required
 def add_job():
     form = JobForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        job = Jobs(
+            job=form.job.data,
+            work_size=form.work_size.data,
+            collaborators=form.collaborators.data,
+            start_date=form.start_date.data,
+            end_date=form.end_date.data,
+            is_finished=form.is_finished.data
+        )
+        current_user.news.append(job)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
     return render_template('add_job.html', title='Добавить работу', form=form)
 
 
