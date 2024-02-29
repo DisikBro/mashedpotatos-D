@@ -1,0 +1,35 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h4>И на Марсе будут яблони цвести</h4>
+<h3>Works Log</h3>
+{% if current_user.is_authenticated %}
+    <a href="/add_job" class="btn btn-secondary">Добавить работу</a>
+{% endif %}
+{% for job in jobs %}
+<h5>Action # {{ job.id }}</h5>
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Title</th>
+        <th scope="col">Team leader</th>
+        <th scope="col">Duration</th>
+        <th scope="col">List of collab</th>
+        <th scope="col">Is finished</th>
+    </tr>
+    </thead>
+    <tbody class="table-group-divider">
+    <tr>
+        <td>{{ job.job }}</td>
+        <td>{{ job.team_lead_user.fullname() }}</td>
+        <td>{{ job.work_size }}</td>
+        <td>{{ job.collaborators }}</td>
+        <td>{{ job.is_finished }}</td>
+
+    </tr>
+    </tbody>
+</table>
+
+{% endfor %}
+{% endblock %}
