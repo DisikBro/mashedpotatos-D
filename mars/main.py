@@ -13,7 +13,7 @@ from mars.data.users import User
 f = Faker()
 
 app = Flask(__name__)
-app.register_blueprint(jobs_api.blueprint)
+app.register_blueprint(jobs_api.blueprint, url_prefix='/api')
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 login_manager = LoginManager()
