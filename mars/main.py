@@ -1,5 +1,6 @@
 import datetime
 
+import jobs_api
 from flask import Flask, render_template, redirect
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from forms.user import RegisterForm, LoginForm
@@ -12,6 +13,7 @@ from mars.data.users import User
 f = Faker()
 
 app = Flask(__name__)
+app.register_blueprint(jobs_api.blueprint)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 login_manager = LoginManager()
@@ -101,30 +103,6 @@ def login():
 def main():
     db_session.global_init("db/mars_explorer.db")
 
-    db_sess = db_session.create_session()
-    for i in range(5, 8):
-        user_data = {
-            'surname': f.last_name(),
-            'name': f.first_name(),
-            'age': f.random_int(20, 60),
-            'position': 'captain' if i == 0 else f.job(),
-            'speciality': f.job(),
-            'address': 'module_1',
-            'email': f.email()
-        }
-        user = User(**user_data)
-        db_sess.add(user)
-    job_data = {
-        'team_lead': 1,
-        'job': f.job(),
-        'work_size': f.random_int(1, 20),
-        'collaborators': '3, 4',
-        'start_date': datetime.datetime.now(),
-        'is_finished': False
-    }
-    job = Jobs(**job_data)
-    db_sess.add(job)
-    db_sess.commit()
     app.run()
 
 
