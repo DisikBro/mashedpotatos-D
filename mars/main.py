@@ -1,20 +1,26 @@
 import datetime
 
 import jobs_api
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, make_response, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from forms.user import RegisterForm, LoginForm
 from faker import Faker
 from forms.job import JobForm
+from mars import users_resources
 from mars.data import db_session
 from mars.data.jobs import Jobs
 from mars.data.users import User
+from flask_restful import reqparse, abort, Api, Resource
 
 f = Faker()
 
 app = Flask(__name__)
 app.register_blueprint(jobs_api.blueprint, url_prefix='/api')
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+api = Api(app, prefix='/api/v2')
+
+api.add_resource(users_resources.UserListResource, '/users')
+api.add_resource(users_resources.UsersResource, '/users/<int:user_id>')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -83,6 +89,16 @@ def add_job():
         db_sess.commit()
         return redirect('/')
     return render_template('add_job.html', title='Добавить работу', form=form)
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+@app.errorhandler(400)
+def bad_request(_):
+    return make_response(jsonify({'error': 'Bad Request'}), 400)
 
 
 @app.route('/login', methods=['GET', 'POST'])

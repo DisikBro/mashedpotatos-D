@@ -1,12 +1,12 @@
 import flask
 
 from mars.data import db_session
-from flask import jsonify, make_response
+from flask import jsonify, make_response, request
 
 from mars.data.jobs import Jobs
 
 blueprint = flask.Blueprint(
-    'news_api',
+    'jobs_api',
     __name__,
     template_folder='templates'
 )
@@ -36,3 +36,17 @@ def get_one_jobs(jobs_id):
             'job': job.to_dict(rules=('-team_lead_user.jobs',))
         }
     )
+
+
+@blueprint.route('jobs', methods=['POST'])
+def create_job():
+    if not request.json:
+        return make_response(jsonify({'error': 'Empty request'}), 400)
+    elif not all(key in request.json for key in
+                 ['job', 'team_lead', 'work_size']):
+        return make_response(jsonify({'error': 'Bad request'}), 400)
+    db_sess = db_session.create_session()
+    job = Jobs(**request.json)
+    db_sess.add(job)
+    db_sess.commit()
+    return jsonify({'id': job.id})
