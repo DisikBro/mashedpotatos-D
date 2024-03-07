@@ -9,10 +9,11 @@ def abort_if_user_not_found(user_id):
     session = db_session.create_session()
     user = session.query(User).get(user_id)
     if not user:
-        abort(404, message=f"News {user_id} not found")
+        abort(404, message=f"User {user_id} not found")
 
 
 parser = reqparse.RequestParser()
+parser.add_argument('id', required=False, type=int)
 parser.add_argument('name', required=True)
 parser.add_argument('surname', required=True)
 parser.add_argument('age', type=int)
@@ -22,7 +23,7 @@ parser.add_argument('address')
 parser.add_argument('email', required=True)
 
 
-class UsersResource(Resource):
+class UserResource(Resource):
     def get(self, user_id):
         abort_if_user_not_found(user_id)
         session = db_session.create_session()
@@ -44,12 +45,14 @@ class UserListResource(Resource):
         session = db_session.create_session()
         users = session.query(User).all()
         return jsonify({'users': [item.to_dict(
-            only=('id', 'name', 'surname', 'position')) for item in users]})
+            only=('id', 'name', 'surname', 'position')
+        ) for item in users]})
 
     def post(self):
         args = parser.parse_args()
         session = db_session.create_session()
         user = User(
+            id=args.id,
             name=args.name,
             surname=args.surname,
             age=args.age,
